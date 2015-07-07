@@ -30,16 +30,7 @@ This baby SPITBOL was pretty robust, and was even used on some 8088 cards plugge
 
 # SPITBOL-88
 
-The file SPIT88.ZIP contains the files as shipped in the 1990's by Mark Emmer of Catspaw,Inc.
-
-The remaining files in this distribution are the files contained
-in SPIT88.ZIP with licensing information attached, using
-a BSD-style license contained in the file LICENSE.
-
-The directory S&LP has been renamed SANDLP to avoid the
-use of '&' in the name.
-
-This is a "micro" version of Catspaw SPITBOL-386 with all of its 
+This is the source distribution of a "micro" version of Catspaw SPITBOL-386 with all of its 
 functionality but with a much reduced memory capability. It 
 generates EXE files and is useful in situations where you wish to 
 distribute a program that is capable of running on all MS-DOS 
