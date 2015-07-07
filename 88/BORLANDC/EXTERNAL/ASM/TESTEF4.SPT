@@ -1,0 +1,13 @@
+* Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+* Use of this source code is governed by a BSD-style
+* license that can be found in the LICENSE file.
+
+* Test far string return from external function.
+*
+* Should write "This is a far string result" to terminal.
+*
+	load("testef4(integer,real,string)")		:s(loads_ok)
+	terminal = "Can't load testef4.slf"	 	:(end)
+loads_ok
+	terminal = testef4(100, 1000.0, "ABCD")
+end

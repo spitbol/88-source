@@ -1,0 +1,10 @@
+* Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+* Use of this source code is governed by a BSD-style
+* license that can be found in the LICENSE file.
+
+-INCLUDE "args.inc"
+        i = 0
+LOOP  output = 'Argument ' i ' is "' argv[i] '"'
+        i = LE(i, argc) i + 1                        :S(LOOP)
+loop2 output = input :s(loop2)
+END

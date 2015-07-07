@@ -1,0 +1,4 @@
++memcmpff.obj +retnstrf.obj +retreal.obj  +strcpyfn.obj +strncpff.obj  &
++memcpyff.obj +retnstrn.obj +retstrf.obj  +strcpynf.obj +strncpfn.obj  &
++memcpyfn.obj +retnxdtf.obj +retstrn.obj  +strlenf.obj  +strncpnf.obj  &
++retint.obj   +retnxdtn.obj +strcpyff.obj +strncmpf.obj  

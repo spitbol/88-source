@@ -1,0 +1,15 @@
+If -NOOP, allow functions and operators to be redefined?
+
+Change LCOMP to use a version of GTSTG that returns a BFBLK ptr and
+size.  Perform LEQ comparisons without having to convert a buffer to
+a string.  Propagate this change to SORT and RSORT of buffers.
+
+Steve Thompson has documentation on DLL usage in Excel.
+
+Allow -#=filename on command line when restarting save or exe file.
+
+Can't specify filename options on command line with embedded space:
+	-1=file[-m10 -n0]
+Have to use commas.
+
+Provide tab expansion/compression option for I/O.

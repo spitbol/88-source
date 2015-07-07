@@ -1,0 +1,54 @@
+* Copyright (C)  1988-1998  Mark Emmer
+
+* SPITBOL is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program  spitbol is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+* File TURBOC.DEF.
+*
+* For 16-bit 8088 SPITBOL, with 32-bit integer accumulator.
+*
+* C labels have a special prefix
+	C.OUT = '_'
+
+* Number of statements within which a jump will be shortened.  Derived
+* empirically as follows for a specific Minimal program:
+*
+* Set JUMP_N to a large value, then translate and assemble program.
+* The assembler will report a large number of jumps out of range.
+* Reduce JUMP_N until the number of errors is small (<10), and enter
+* those as special cases below.
+*
+* These definitions are for Minimal file V37.MIN and the 8088 code generator.
+*
+	JUMP_N = 51
+*
+*
+* Specific statements not to shorten.  Derived empirically.
+*
+	NS1 = "JE"  *WS "CMP18"
+	NS2 = "JA"  *WS "CNC42"
+	NS3 = "JZ"  *WS "GTAR9"
+	NS4 = "JNZ" *WS "LIST4"
+	NS5 = "JZ"  *WS "READ6"
+	NS6 = "JMP" *WS "GTN22"
+	NS7 = "JAE" *WS "LIST6"
+	NS8 = "JE"  *WS "SRT04"
+	NS9 = "JNZ" *WS "CMP18"
+	NS10 = "JE" *WS "SRC09"
+        NS11 = "JZ" *WS "CMP12"
+        NS12 = "JNE" *WS "ASG18"
+        NS13 = "JL" *WS "ASG18"
+        NS14 = "JE" *WS "ASG21"
+        NS15 = "JA" *WS "ASG18"
+        NS16 = "JE" *WS "ASG17"
+        NS_PAT = *WS (NS1 | NS2 | NS3 | NS4 | NS5 | NS6 | NS7 | NS8 | NS9 | NS10 | NS11 | NS12 | NS13 | NS14 | NS15 | NS16)

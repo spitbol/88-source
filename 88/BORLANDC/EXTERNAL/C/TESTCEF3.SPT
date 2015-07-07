@@ -1,0 +1,13 @@
+* Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+* Use of this source code is governed by a BSD-style
+* license that can be found in the LICENSE file.
+
+* Test real return and arithmetic from C external function.
+*
+* Should write 999.0 to terminal.
+*
+	load("testcef3(integer,real,string)")		:s(loads_ok)
+	terminal = "Can't load testcef3.slf"	 	:(end)
+loads_ok
+	terminal = testcef3(100, 1000.0, "ABCD")
+end

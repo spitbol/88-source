@@ -1,0 +1,15 @@
+* Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+* Use of this source code is governed by a BSD-style
+* license that can be found in the LICENSE file.
+
+* Test external block return from C external function.
+*
+* Should write EXTERNAL followed by OK to terminal.
+*
+	load("testcef5(integer,real,string,other)")	:s(loads_ok)
+	terminal = "Can't load testcef5.slf"	 	:(end)
+loads_ok
+	terminal = x = testcef5(100, 1000.0, "ABCD",)	;* should print EXTERNAL
+	collect()
+	terminal = testcef5(100, 1000.0, "ABCD", x)	;* should print OK
+end

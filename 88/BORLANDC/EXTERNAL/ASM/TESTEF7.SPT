@@ -1,0 +1,15 @@
+* Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+* Use of this source code is governed by a BSD-style
+* license that can be found in the LICENSE file.
+
+* Test ability to save external function in a SAVE file.
+*
+	load("testef7(integer,real,string)")		:s(loads_ok)
+	terminal = "Can't load testef7.slf"	 	:(end)
+loads_ok
+	terminal = testef7(100, 1000.0, "ABCD")
+ok	terminal = "Writing save file TESTEF7.SPX"
+	exit(-3, "testef7.spx")				:s(again)
+	terminal = "Can't write Save file TESTEF7.SPX"
+again	terminal = testef7(100, 1000.0, "ABCD")
+end

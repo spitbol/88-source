@@ -1,0 +1,39 @@
+*  Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+*  Use of this source code is governed by a BSD-style
+*  license that can be found in the LICENSE file.
+
+-MODULE INTR
+
+*	INTR.SNO
+*
+*	Make BIOS and DOS calls from SNOBOL4
+*
+*	Usage:
+*		CARRY = INTR(INTEGER,ARRAY)
+*
+*	where:	Integer = Interrupt number to be invoked.
+*			= 33 for DOS calls.
+*		Array	= Array of register values to be passed
+*			  to interrupt.  See file INTR.ASM for
+*			  more detailed explanation of register contents.
+*			  The array INTR and the register definitions for
+*			  entries in the array can be used by the caller.
+*
+*		Carry	= integer 1 if carry flag set after interrupt call
+*			= integer 0 if carry flag reset
+*
+*	Note:	By using this SNOBOL4 file to load the assembly language
+*		routine INTR.COM, the caller is free to insert the statement
+*
+*			-INCLUDE "INTR.SNO"
+*
+*		freely in his/her program, whereever INTR.COM might be
+*		needed.  Version 2.0 of SNOBOL4+ will only include the
+*		file once.
+
+	LOAD('INTR(INTEGER,ARRAY)','INTR.COM')			:S(INTR_1)
+	SCREEN = '*** COULD NOT LOAD FILE INTR.COM ***'		:F(ERROR)
+INTR_1	INTR = ARRAY('9')
+	INTR.RAX = 1; INTR.RBX = 2; INTR.RCX = 3; INTR.RDX = 4
+	INTR.RSI = 5; INTR.RDI = 6; INTR.RDS = 7; INTR.RES = 8
+	INTR.RF  = 9

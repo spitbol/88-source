@@ -1,0 +1,143 @@
+*  Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+*  Use of this source code is governed by a BSD-style
+*  license that can be found in the LICENSE file.
+
+*	code.spt
+*
+*	Program to allow entering test SNOBOL4 statements.
+*	Labels S and F are provided as convenient branch points.
+*	Function SLOAD is also included, to allow dynamically loading
+*	other SNOBOL4 functions.
+*
+*	User dialog is independent of INPUT and OUTPUT variables.  They
+*	are defaulted to standard in and standard out,
+*	but may be redirected from the command line:
+*
+*		spitbol code.spt <infile >outfile
+*
+*
+*	To avoid having to type the full line:
+*
+*	?	TERMINAL = <some expression to evaluate>
+*
+*	CODE.SPT provides the following shorthand notations:
+*
+*	?=expression
+*
+*	which internally expands to TERMINAL = EVAL(expression)
+*
+*	?!command
+*
+*	which internally expands to HOST(1,"command")
+*
+*	(c) Copyright 1985, 1997 - Catspaw, Incorporated
+
+	&TRIM = 1
+	MAX_ORIGINAL = &MAXLNGTH
+	TERMINAL = 'Enter SPITBOL statements:'
+	OUTPUT('BINOUT', .BINOUT, '[-f2 -r1]')
+
+	DEFINE('SLOAD(FILENAME)LIB,CODE,X,MAX_SAV,TRIM_SAV,POSITION')
+	WHITE_SPACE_	=	CHAR(9) ' '
+	OPT_WHITE_	=	ANY(WHITE_SPACE_) | ''
+	SF_PAT_		=	FENCE ANY('SsFf') (ANY(WHITE_SPACE_) | RPOS(0))
+	LAB_PAT_	=	FENCE BREAKX(':') ':'
++				ARBNO(OPT_WHITE_ (ANY("SsFf") | "")
++				OPT_WHITE_ ANY("(<") BREAKX(")>") LEN(1))
++				OPT_WHITE_ RPOS(0)
+	Q_	    =	"'"
+	QQ_	    =	'"'
+
+	SLOAD_STMT  =	ARBNO(Q_ BREAK(Q_) Q_ | QQ_ BREAK(QQ_) QQ_ |
++			  NOTANY(Q_ QQ_) BREAK(Q_ QQ_ ';')) ';'
+	SLOAD_STMTS =	FENCE (';' ARBNO(SLOAD_STMT)) . X '*' REM
+	SLOAD_CCPAT =	FENCE ('*' | '-' | RPOS(0))
+	SLOAD_CNPAT =	FENCE (';.' | ';+')
+	SLOAD_INPAT =	FENCE '-' ANY('Ii') ('nclude' | 'NCLUDE')
++			  BREAK(QQ_ Q_) LEN(1) BREAK(QQ_ Q_) . X
+	SLOAD_TAB	=	TABLE()
+	SLOAD_PREFIX	=	HOST(4,'SNOLIB') '/'
+
+*	Trap and report conditionally fatal execution errors in user's code
+	SETEXIT(.ERRFUN_)
+	&ERRLIMIT = 1000
+
+NEWLIN_ BINOUT = '?'
+	INPT_  = TERMINAL				:F(END)
+	BREAK_CNT_ = DIFFER(INPT_) 0
+	INPT_ FENCE '=' REM . CODE			:S(EVAL_)
+	INPT_ FENCE '!' REM . COMMAND			:S(COMMAND)
+	INPT_ SF_PAT_					:S(SF_ERR_)
+	IDENT(REPLACE(INPT_,&UCASE,&LCASE),"end")	:S(END)
+	INPT_ LAB_PAT_ 					:F(CODEIT_)
+	INPT_ = INPT_ ';'
+CODEIT_	CODE   = CODE(INPT_ ' :S(S) F(F)')		:S<CODE>F(NEWLIN_)
+
+S	TERMINAL = 'Success'				:(NEWLIN_)
+F	TERMINAL = 'Failure'				:(NEWLIN_)
+EVAL_	TERMINAL = EVAL(CODE)				:S(S)F(F)
+COMMAND	HOST(1,COMMAND)					:(NEWLIN_)
+
+ERRFUN_	SETEXIT(.ERRFUN_)
+	BREAK_CNT_ = IDENT(&ERRTYPE,320) BREAK_CNT_ + 1
+	TERMINAL = EQ(BREAK_CNT_,1) &ERRTEXT		:S(NEWLIN_)
+	TERMINAL = GT(BREAK_CNT_,1) &ERRTEXT		:S(END)
+	TERMINAL = 'Error #' &ERRTYPE ', ' &ERRTEXT
++	', in statement ' &LASTNO
+	DIFFER(&ERRTYPE,37)
++	DIFFER(&ERRTYPE,38) DIFFER(&ERRTYPE,286) 	:S(CONTINUE)F(F)
+
+SF_ERR_	TERMINAL = "Cannot use 'S' or 'F' as a label with CODE.SPT" :(NEWLIN_)
+
+
+*	Function to read and compile SNOBOL4 functions from a disk file.
+*	The filename is specified as the argument to function SLOAD.  It is
+*	included here for handy access when running this program.
+*
+*	This version is supplemented by the ability to process INCLUDE
+*	control cards. It avoids redundant includes.
+*
+SLOAD	FILENAME  = TRIM(REPLACE(FILENAME,&UCASE,&LCASE))
+	SLOAD_TAB<FILENAME> = 1
+	INPUT(.LIB, .LIB, FILENAME)			:S(SLOAD_0)
+	INPUT(.LIB, .LIB, SLOAD_PREFIX FILENAME)	:F(FRETURN)
+SLOAD_0	MAX_SAV   =	&MAXLNGTH
+	TRIM_SAV  =	&TRIM
+	&MAXLNGTH =	MAX_ORIGINAL
+	&TRIM     =	1
+
+SLOAD_1	X	  =	LIB				:F(SLOAD_2)
+	X SLOAD_CCPAT					:S(SLOAD_4)
+	X	  =	';' X
+	X SLOAD_CNPAT =	' '
+	X SLOAD_STMTS
+	CODE	  =	CODE X				:(SLOAD_1)
+
+SLOAD_4	X SLOAD_INPAT					:F(SLOAD_1)
+	X = REPLACE(X,&UCASE,&LCASE)
+	DIFFER(SLOAD_TAB<X>)				:S(SLOAD_1)
+
+	POSITION = SET(.LIB,0,1)
+	SLOAD(X)					:F(FRETURN)
+	SLOAD_TAB<TRIM(X)> = 1
+
+	INPUT(.LIB, .LIB, FILENAME)			:S(SLOAD_5)
+	INPUT(.LIB, .LIB, SLOAD_PREFIX FILENAME)	:F(FRETURN)
+SLOAD_5	SEEK(.LIB, POSITION,0)				:S(SLOAD_1)F(FRETURN)
+
+SLOAD_2	ENDFILE(.LIB)
+	CODE	=	CODE(CODE '; :(SLOAD_3)')	:S<CODE>
+	TERMINAL =	'Compilation error, file: ' FILENAME
+* Error. Take CODE apart statement by statement to find the problem.
+* Remove initial ';'
+	CODE	=	SUBSTR(CODE,2)
+SLOAD_6	CODE FENCE SLOAD_STMT . X =			:F(SLOAD_7)
+	CODE(X)						:S(SLOAD_6)
+	X RTAB(1) . TERMINAL
+SLOAD_7	&MAXLNGTH =	MAX_SAV
+	&TRIM	=	TRIM_SAV
+	TERMINAL =	&ERRTEXT			:(FRETURN)
+
+SLOAD_3	&MAXLNGTH =	MAX_SAV
+	&TRIM	=	TRIM_SAV			:(RETURN)
+END

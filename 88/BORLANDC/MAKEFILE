@@ -1,0 +1,277 @@
+# Borland C 3.0 C SPITBOL-88.  MS-DOS version.
+#
+# Makefile designed for Intel Codebuilder Make.
+#
+# Generate SPITBOL with 16-bit or 32-bit integer accumulator?
+#  Set to 1 for 32-bit integer accumulator, 0 for 16-bit integer accumulator.
+#
+# !! Run the RESET batch file when changing IA32 !!
+#
+#  Assumes MS-DOS environment variable "BORLAND" is set to the drive
+#  and path of the Borland C++ root directory.  For example,
+#      C:>SET BORLAND=C:\BC
+#
+IA32=   1
+
+# Build debug version with symbols?  0 = No, 1 = Yes.
+#
+DEBUG=  0
+
+%set $(BORLAND) = BORLAND	# Pick up from DOS environment
+!if null(BORLAND)
+!abort Must define "BORLAND" environment variable
+!endif
+
+
+# SPITBOL Version:
+!if	$(IA32)
+VERS=	TURBOC32
+!else
+VERS=	TURBOC16
+!endif
+
+# Many source files are in other directories.  Instruct Make to look there.
+CPATH=	\spit\c\\
+APATH=	\spit\a\a88\\
+HPATH=	\spit\88\\
+
+CBVPATH=$(CPATH);$(HPATH)
+
+# Compiler/assembler/tool info (compact memory model):
+#
+CC=     $(BORLAND)\bin\bcc
+
+!if	$(DEBUG)
+CFLAGS=    -mc -I$(CPATH) -I$(HPATH) -I$(BORLAND)\INCLUDE -v -w-par -N -DIA32=$(IA32)
+!else	#DEBUG
+CFLAGS=    -mc -I$(CPATH) -I$(HPATH) -I$(BORLAND)\INCLUDE -d -O2 -w-par -DIA32=$(IA32)
+!endif	#DEBUG
+
+
+# Linker info:
+#
+LNK=    $(BORLAND)\bin\bcc
+
+!if	$(DEBUG)
+LFLAGS=	 -v -ls -L$(BORLAND)\lib -M -mc
+!else	#DEBUG
+LFLAGS=	 -ls -L$(BORLAND)\lib -M -mc
+!endif	#DEBUG
+
+# Assembler
+AS=     $(BORLAND)\bin\tasm
+!if	$(DEBUG)
+ASFLAGS= -ml -e -i$(APATH) -dIA32=$(IA32) -d__c__=1 -zi
+!else
+ASFLAGS= -ml -e -i$(APATH) -dIA32=$(IA32) -d__c__=1
+!endif
+
+TOK=	\spit\tools\token.spt
+COD=	\spit\tools\cod88.spt
+ERR=	\spit\tools\err88.spt
+SPIT=   spitbol
+
+
+# Minimal source is in another directory.
+MINPATH=\spit\v37\\
+
+# Implicit rule for building objects from C files.
+.c.obj:
+	$(CC) -c $(CFLAGS) $<
+
+# Headers common to all versions of SPITBOL:
+CHDRS=	$(CPATH)osint.h   $(CPATH)port.h     $(CPATH)sproto.h \
+	$(CPATH)spitio.h  $(CPATH)spitblks.h $(CPATH)globals.h
+
+# Headers unique to this version of SPITBOL:
+UHDRS=	systype.h
+
+# All C headers
+HDRS=	$(CHDRS) $(UHDRS)
+
+# Assembly-language headers
+AHDRS=	systype.ah $(APATH)osint.inc rules.asi
+
+# Headers for Minimal source translation:
+VHDRS=	$(VERS).cnd $(VERS).def $(VERS).hdr
+
+# OSINT objects:
+SYSOBJS=sysax.obj sysbs.obj sysbx.obj syscm.obj syscr.obj sysdc.obj sysdt.obj \
+	sysea.obj sysef.obj sysej.obj sysem.obj sysen.obj sysep.obj sysex.obj \
+	sysfc.obj sysgc.obj syshs.obj sysid.obj sysif.obj sysil.obj sysin.obj \
+	sysio.obj sysld.obj sysmm.obj sysmx.obj sysou.obj syspl.obj syspp.obj \
+	sysrw.obj sysst.obj sysstdio.obj systm.obj systty.obj sysul.obj \
+	sysxi.obj
+
+
+# other C objects:
+COBJS=	arg2scb.obj checkfpu.obj compress.obj cpys2sc.obj doexec.obj \
+	doset.obj dosys.obj fakexit.obj float.obj flush.obj gethost.obj \
+	getshell.obj lenfnm.obj math.obj optfile.obj \
+	osclose.obj osopen.obj ospipe.obj osread.obj oswait.obj \
+	oswrite.obj prompt.obj rdenv.obj sioarg.obj st2d.obj stubs.obj \
+	swcinp.obj swcoup.obj sysbcc16.obj testty.obj trypath.obj wrtaout.obj
+
+# main objects:
+MOBJS=	main.obj getargs.obj
+
+# Assembly langauge objects:
+AOBJS=	serial.obj inter.obj errors.obj
+
+# Objects for SPITBOL's LOAD function:
+LOBJS=	load.obj
+
+# Objects for SPITBOL's HOST function:
+HOBJS=	host88.obj scops.obj kbops.obj vmode.obj
+
+# Minimal source object file:
+VOBJS=	v37.obj
+
+# All objects except startup code:
+OBJS=	$(AOBJS) $(COBJS) $(HOBJS) $(LOBJS) $(SYSOBJS) $(VOBJS)
+
+# main program
+!if	$(DEBUG)
+spitbol.exe:	$(OBJS) $(MOBJS)
+		$(LNK) $(LFLAGS) @spitbol8.lnk
+!else	#DEBUG
+!if	$(IA32)
+spitboll.exe:	$(OBJS) $(MOBJS)
+		$(LNK) $(LFLAGS) @spitbol8.lnk
+                move spitbol.exe spitboll.exe
+!else	#IA32
+spitbols.exe:	$(OBJS) $(MOBJS)
+		$(LNK) $(LFLAGS) @spitbol8.lnk
+                move spitbol.exe spitbols.exe
+!endif	#IA32
+!endif	#DEBUG
+
+# SPITBOL Minimal source
+v37.obj:	v37.asm $(APATH)hdrdata.inc $(APATH)hdrcode.inc $(AHDRS)
+		$(AS) $(ASFLAGS) v37.asm
+
+v37.asm:	v37.tok $(VHDRS) $(COD)
+!if	$(DEBUG)
+!if	$(IA32)
+		$(SPIT) -u "v37:$(VERS):comments:ia32" $(COD)
+!else
+		$(SPIT) -u "v37:$(VERS):comments" $(COD)
+!endif
+!else
+!if	$(IA32)
+		$(SPIT) -u "v37:$(VERS):compress:ia32" $(COD)
+!else
+		$(SPIT) -u "v37:$(VERS):compress" $(COD)
+!endif
+!endif
+
+v37.tok .PRECIOUS: $(MINPATH)v37.min $(VERS).cnd $(TOK)
+		$(SPIT) -u "$(MINPATH)v37:$(VERS):v37" $(TOK)
+
+v37.err:	v37.asm
+
+# Miscellaneous assembly-language files
+inter.obj:	$(APATH)inter.asm $(AHDRS)
+		$(AS) $(ASFLAGS) $(APATH)inter.asm
+
+serial.obj:	$(APATH)serial.asm $(AHDRS)
+		$(AS) $(ASFLAGS) $(APATH)serial.asm
+
+errors.obj:	errors.asm $(AHDRS)
+		$(AS) $(ASFLAGS) errors.asm
+
+#errors.asm:     $(VERS).cnd
+errors.asm:     $(VERS).cnd v37.err
+		$(SPIT) -u "$(VERS)" -1=v37.err -2=errors.asm $(ERR)
+
+# Loader files
+load.obj:	$(APATH)load.asm $(APATH)blocks88.inc $(APATH)extrn88.inc $(AHDRS)
+		$(AS) $(ASFLAGS) $(APATH)load.asm
+
+# Host function files
+host88.obj:	$(APATH)host88.asm $(AHDRS)
+		$(AS) $(ASFLAGS) $(APATH)host88.asm
+
+scops.obj:	$(APATH)scops.asm $(AHDRS)
+		$(AS) $(ASFLAGS) $(APATH)scops.asm
+
+kbops.obj:	$(APATH)kbops.asm $(AHDRS)
+		$(AS) $(ASFLAGS) $(APATH)kbops.asm
+
+vmode.obj:	$(APATH)vmode.asm $(AHDRS)
+		$(AS) $(ASFLAGS) $(APATH)vmode.asm
+
+# System files
+sysax.obj:	$(HDRS)
+sysbs.obj:	$(HDRS)
+sysbx.obj:	$(HDRS)
+syscm.obj:	$(HDRS)
+syscr.obj:	$(HDRS)
+sysdc.obj:	$(HDRS)
+sysdt.obj:	$(HDRS)
+sysea.obj:	$(HDRS)
+sysef.obj:	$(HDRS)
+sysej.obj:	$(HDRS)
+sysem.obj:	$(HDRS)
+sysen.obj:	$(HDRS)
+sysep.obj:	$(HDRS)
+sysex.obj:	$(HDRS)
+sysfc.obj:	$(HDRS)
+sysgc.obj:	$(HDRS) save.h
+syshs.obj:	$(HDRS)
+sysid.obj:	$(HDRS)
+sysif.obj:	$(HDRS)
+sysil.obj:	$(HDRS)
+sysin.obj:	$(HDRS)
+sysio.obj:	$(HDRS)
+sysld.obj:	$(HDRS)
+sysmm.obj:	$(HDRS)
+sysmx.obj:	$(HDRS)
+sysou.obj:	$(HDRS)
+syspl.obj:	$(HDRS)
+syspp.obj:	$(HDRS)
+sysrw.obj:	$(HDRS)
+sysst.obj:	$(HDRS)
+sysstdio.obj:	$(HDRS)
+systm.obj:	$(HDRS)
+systty.obj:	$(HDRS)
+sysul.obj:	$(HDRS)
+sysxi.obj:	$(HDRS) save.h
+
+# other C objects
+arg2scb.obj:	$(HDRS)
+break.obj:	$(HDRS)
+checkfpu.obj:	$(HDRS)
+compress.obj:	$(HDRS)
+cpys2sc.obj:	$(HDRS)
+doexec.obj:	$(HDRS)
+doset.obj:	$(HDRS)
+dosys.obj:	$(HDRS)
+fakexit.obj:	$(HDRS)
+float.obj:	$(HDRS)
+flush.obj:	$(HDRS)
+getargs.obj:	$(HDRS)
+gethost.obj:	$(HDRS)
+getshell.obj:	$(HDRS)
+int.obj:	$(HDRS)
+lenfnm.obj:	$(HDRS)
+main.obj:	$(HDRS) save.h
+optfile.obj:	$(HDRS)
+osclose.obj:	$(HDRS)
+osopen.obj:	$(HDRS)
+ospipe.obj:	$(HDRS)
+osread.obj:	$(HDRS)
+oswait.obj:	$(HDRS)
+oswrite.obj:	$(HDRS)
+prompt.obj:	$(HDRS)
+rdenv.obj:	$(HDRS)
+sioarg.obj:	$(HDRS)
+st2d.obj:	$(HDRS)
+stubs.obj:	$(HDRS)
+swcinp.obj:	$(HDRS)
+swcoup.obj:	$(HDRS)
+sysbcc16.obj:	$(HDRS) blocks88.h $(HPATH)extrn88.h
+testty.obj:	$(HDRS)
+trypath.obj:	$(HDRS)
+wrtaout.obj:	$(HDRS)
+math.obj:	$(HDRS)

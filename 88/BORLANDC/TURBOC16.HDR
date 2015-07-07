@@ -1,0 +1,50 @@
+;	Copyright 1988-1998 Mark Emmer, Catspaw, Inc. All rights reserved.
+;	Use of this source code is governed by a BSD-style
+;	license that can be found in the LICENSE file.
+
+; File TURBOC.HDR 
+;
+; For 16-bit 8088 SPITBOL, with 16-bit integer accumulator.
+;
+	page		80,132
+	include		systype.ah
+	include		rules.asi
+
+	Header@
+
+	Code_Seg@
+	extrn		LDR_:far
+	extrn		STR_:far
+	extrn		ADR_:far
+	extrn		SBR_:far
+	extrn		MLR_:far
+	extrn		DVR_:far
+	extrn		NGR_:far
+	extrn		SQR_:far
+
+	extrn		OVR_:far
+	extrn		DVI_:far
+	extrn		RMI_:far
+	extrn		CVD_:far
+	extrn		RTI_:far
+	extrn		ITR_:far
+	extrn		ATN_:far
+	extrn		CHP_:far
+	extrn		COS_:far
+	extrn		ETX_:far
+	extrn		LNF_:far
+	extrn		SIN_:far
+	extrn		TAN_:far
+	extrn		CPR_:far
+	JUMPS
+	Code_EndS@
+
+	MinCode_Seg@
+	include		hdrcode.inc
+	MinCode_EndS@
+END
+	MinCode_EndS@
+
+	Data_Seg@
+	include		hdrdata.inc
+	Data_EndS@

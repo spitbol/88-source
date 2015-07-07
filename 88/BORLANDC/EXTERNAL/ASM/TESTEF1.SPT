@@ -1,0 +1,14 @@
+
+* Copyright 1988-1998, Mark Emmer, Catspaw, Inc.  All rights reserved.
+* Use of this source code is governed by a BSD-style
+* license that can be found in the LICENSE file.
+
+* Test string return from external function.
+*
+* Should write OK to terminal.
+*
+	load("testef1(integer,real,string)")		:s(loads_ok)
+	terminal = "Can't load testef1.slf"	 	:(end)
+loads_ok
+	terminal = testef1(100, 1000.0, "ABCD")
+end

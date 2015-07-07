@@ -1,0 +1,132 @@
+;	Copyright 1988-1998 Mark Emmer, Catspaw, Inc. All rights reserved.
+;	Use of this source code is governed by a BSD-style
+;	license that can be found in the LICENSE file.
+
+; configuration information for INTER.ASM.
+;
+turboc=1
+
+; coordinate with values in SYSTYPE.H and PORT.H:
+;
+ID2BLK_LENGTH=52
+IRECSIZ=512
+TSCBLK_LENGTH=256
+USE_MALLOC=1		; 1 to use malloc, 0 to use DOS function 48
+ENGINE=0
+EXTFUN=1
+SAVEFILE=1
+
+; define how data locations in the Minimal code are accessed from
+; assembly-language and C routines.  "direct" is non-zero to make
+; the symbols public for direct access, zero to have access via
+; a table of pointers and the minadr procedure.
+;
+direct=0
+
+; define how floating point results are returned from a function
+; (either in ST(0) or in EDX:EAX.
+fretst0=1
+freteax=0
+
+; define specifiers for code and data segments
+;
+MINCODE	equ	<_V37CODE>
+MINDATA	equ	<_V37DATA>
+
+MinCode_Seg@    MACRO           ;; Open a Minimal Code Segment
+MINCODE SEGMENT WORD PUBLIC 'CODE'
+        ASSUME  CS:MINCODE, DS:MINDATA
+                ENDM
+
+MinCode_EndS@   MACRO           ;; Close a Minimal Code Segment
+MINCODE ENDS
+                ENDM
+
+MinData_Seg@    MACRO           ;; Open a Minimal Data Segment
+MINDATA SEGMENT WORD PUBLIC 'FAR_DATA'
+                ENDM
+
+MinData_EndS@   MACRO           ;; Close a Minimal Data Segment
+MINDATA ENDS
+                ENDM
+
+MinData_End_Seg@    MACRO           ;; Open a Minimal Data Segment
+MINDATA&_END SEGMENT WORD PUBLIC 'FAR_DATA'
+                ENDM
+
+MinData_End_EndS@   MACRO           ;; Close a Minimal Data Segment
+MINDATA&_END ENDS
+                ENDM
+
+; define size of SPITBOL Minimal "word".
+;
+mword	equ	word		; Minimal word
+msize	equ	2		; (size mword)
+dm	equ	dw
+
+; Macros required for the TurboC version of SPITBOL, which requires
+; a leading underscore on names that will be referenced from C.     
+;
+underscore=1
+ext	macro	name,type
+	extrn	_&name:type
+name	equ	_&name
+	endm
+
+def	macro	name,op,val
+_&name	op	val  
+name	equ	_&name
+	endm
+
+pubdef	macro	name,op,val
+	public	_&name
+_&name	op	val
+name	equ	_&name
+	endm
+
+pubname	macro	procname
+	public	_&procname
+	endm
+
+; The "proc" directive can't go inside a macro -- yet another
+; of the many bugs in the flaky Microsoft assembler.
+publab	macro	procname
+	pubname	procname
+_&procname:
+	endm
+
+
+; Call C function.  TurboC follows standard C conventions, and
+; caller pops arguments.
+callc	macro	routine,nbytes
+	call	_&routine
+ifdif <nbytes>,<0>
+  ifdif <nbytes>,<2>
+	add	sp,nbytes
+  else
+	inc	sp
+	inc	sp
+  endif
+endif
+	endm
+
+
+; Far calls.
+callfar	macro	routine,nbytes
+	extrn	_&routine:far
+	call	_&routine
+ifdif <nbytes>,<0>
+  ifdif <nbytes>,<2>
+	add	sp,nbytes
+  else
+	inc	sp
+	inc	sp
+  endif
+endif
+	endm
+
+; Return from an assembly-language function that will be called by C.
+; Caller pops arguments
+retc	macro	nbytes
+	ret
+	endm

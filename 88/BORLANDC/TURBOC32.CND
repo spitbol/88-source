@@ -1,0 +1,109 @@
+* Copyright (C)  1988-1998  Mark Emmer
+
+* SPITBOL is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*      SPITBOL CONDITIONAL ASSEMBLY SYMBOLS FOR USE BY TOKEN.SPT
+*      ---------------------------------------------------------
+*
+*      THIS FILE OF CONDITIONAL SYMBOLS WILL OVERRIDE THE CONDITIONAL
+*      DEFINITIONS CONTAINED IN THE SPITBOL MINIMAL FILE.   IN ADDITION,
+*      LINES BEGINNING WITH ">" ARE TREATED AS SPITBOL STATEMENTS AND
+*      IMMEDIATELY EXECUTED.
+*
+*      FOR 16-BIT 8088 SPITBOL, WITH 32-BIT INTEGER ACCUMULATOR.
+*
+*      NOTE THAT THE 8088 IMPLEMENTATION _MUST_ DEFINE .CEPP AND
+*      .CRPP.  BECAUSE THE MINIMAL CODE RUNS IN ANOTHER SEGMENT,
+*      IT IS POSSIBLE AND PROBABLE THAT THERE WILL BE CODE
+*      ADDRESSES GREATER THAN MXLEN.  THIS WILL CAUSE PROBLEMS
+*      FOR THE GARBAGE COLLECTOR. USING THE ODD/EVEN TESTS AVOIDS
+*      THESE ADDRESS COMPARISONS.
+*
+*      IN THE SPITBOL TRANSLATOR, THE FOLLOWING CONDITIONAL
+*      ASSEMBLY SYMBOLS ARE REFERRED TO. TO INCORPORATE THE
+*      FEATURES REFERRED TO, THE MINIMAL SOURCE SHOULD BE
+*      PREFACED BY SUITABLE CONDITIONAL ASSEMBLY SYMBOL
+*      DEFINITIONS.
+*      IN ALL CASES IT IS PERMISSIBLE TO DEFAULT THE DEFINITIONS
+*      IN WHICH CASE THE ADDITIONAL FEATURES WILL BE OMITTED
+*      FROM THE TARGET CODE.
+*
+*
+*                            CONDITIONAL OPTIONS
+*                            SINCE .UNDEF NOT ALLOWED IF SYMBOL NOT
+*                            DEFINED, A FULL COMMENT LINE INDICATES
+*                            SYMBOL INITIALLY NOT DEFINED.
+*
+.DEF   .CAEX                 DEFINE TO ALLOW UP ARROW FOR EXPONENTIATION
+.DEF   .CAHT                 DEFINE TO INCLUDE HORIZONTAL TAB
+.DEF   .CASL                 DEFINE TO INCLUDE 26 SHIFTED LETTRS
+*      .CAVT                 DEFINE TO INCLUDE VERTICAL TAB
+.DEF   .CBSP                 DEFINE TO INCLUDE BACKSPACE FUNCTION
+*      .CBYT                 DEFINE FOR STATISTICS IN BYTES
+*      .CCMC                 DEFINE TO INCLUDE SYSCM FUNCTION
+.DEF   .CCMK                 DEFINE TO INCLUDE COMPARE KEYWORD
+*      .CENG                 DEFINE TO INCLUDE ENGINE FEATURES
+.DEF   .CEPP                 DEFINE IF ENTRY POINTS HAVE ODD PARITY
+.DEF   .CERA                 DEFINE TO INCLUDE SYSEA FUNCTION
+.DEF   .CEVB                 DEFINE TO FIX EVAL BUG
+.DEF   .CEXP                 DEFINE TO HAVE SPITBOL POP SYSEX ARGUMENTS
+.DEF   .CGBC                 DEFINE TO INCLUDE SYSGC FUNCTION
+.DEF   .CICC                 DEFINE TO IGNORE UNRECOGNISED CONTROL CARD
+.DEF   .CINC                 DEFINE TO INCLUDE -INCLUDE CONTROL CARD
+.DEF   .CIOD                 IF DEFINED, DEFAULT DELIMITER IS
+.DEF   .CMTH                 DEFINE TO INCLUDE EXTENDED MATH FUNCTIONS
+.DEF   .CNBF                 DEFINE TO OMIT BUFFER EXTENSION
+.DEF   .CNBT                 DEFINE TO OMIT BATCH INITIALISATION
+*      .CNCI                 DEFINE TO ENABLE SYSCI ROUTINE
+.DEF   .CNCR                 DEFINE TO ENABLE SYSCR ROUTINE
+*      .CNEX                 DEFINE TO OMIT EXIT() CODE.
+*      .CNLD                 DEFINE TO OMIT LOAD() CODE.
+.DEF   .CNLF                 DEFINE TO SUPPORT FILE TYPE FOR LOAD()
+*      .CNPF                 DEFINE TO OMIT PROFILE STUFF
+*      .CNRA                 DEFINE TO OMIT ALL REAL ARITHMETIC
+.DEF   .CNSC                 DEFINE TO OMIT NUMERIC-STRING COMPARE IN SORT
+*      .CNSR                 DEFINE TO OMIT SORT, RSORT
+.DEF   .CSOU                 DEFINE IF OUTPUT, TERMINAL GO TO SYSOU
+.DEF   .CPOL                 DEFINE IF INTERFACE POLLING DESIRED
+*      .CREL                 DEFINE TO INCLUDE RELOC ROUTINES
+.DEF   .CRPP                 DEFINE IF RETURN POINTS HAVE ODD PARITY
+*      .CS16                 DEFINE TO INITIALIZE STLIM TO 32767
+.DEF   .CS32                 DEFINE TO INITIALIZE STLIM TO 2147483647
+.DEF   .CSAX                 DEFINE IF SYSAX IS TO BE CALLED
+*      .CSED                 DEFINE TO USE SEDIMENT IN GARBAGE COLLECTOR
+.DEF   .CSFN                 DEFINE TO TRACK SOURCE FILE NAMES
+.DEF   .CSLN                 DEFINE TO PUT SOURCE LINE NUMBER IN CODE BLOCKS
+.DEF   .CSN5                 DEFINE TO PAD STMT NOS TO 5 CHARS
+*      .CSN6                 DEFINE TO PAD STMT NOS TO 6 CHARS
+*      .CSN8                 DEFINE TO PAD STMT NOS TO 8 CHARS
+*      .CTMD                 DEFINE IF SYSTM UNIT IS DECISECOND
+.DEF   .CUCF                 DEFINE TO INCLUDE CFP$U
+.DEF   .CUEJ                 DEFINE TO SUPPRESS NEEDLESS EJECTS
+.DEF   .CULC                 DEFINE TO INCLUDE &CASE (LC NAMES)
+.DEF   .CULK                 DEFINE TO INCLUDE &LCASE, &UCASE KEYWORDS
+.DEF   .CUST                 DEFINE TO INCLUDE SET() CODE
+*
+*
+* Fix CFP values that are initialized for 32-bit systems by TOKEN.SPT:
+>      G.EQU.DEFS['CFP$B'] = 2
+>      G.EQU.DEFS['CFP$C'] = 2
+>      G.EQU.DEFS['CFP$F'] = 4
+>      G.EQU.DEFS['CFP$I'] = 2                      
+>      G.EQU.DEFS['CFP$L'] = 65535
+>      G.EQU.DEFS['CFP$M'] = 32767
+>      G.EQU.DEFS['CFP$N'] = 16
+>      G.EQU.DEFS['CFP$R'] = 4
+>      G.EQU.DEFS['E$SRS'] = 200
+>      G.EQU.DEFS['E$STS'] = 256
+>      G.EQU.DEFS['E$HNB'] = 127

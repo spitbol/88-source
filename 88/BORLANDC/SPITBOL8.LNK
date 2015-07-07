@@ -1,0 +1,15 @@
+-espitbol.exe
+serial.obj inter.obj sysbcc16.obj arg2scb.obj
+checkfpu.obj compress.obj cpys2sc.obj doexec.obj doset.obj dosys.obj
+fakexit.obj float.obj flush.obj getargs.obj gethost.obj getshell.obj lenfnm.obj
+load.obj main.obj math.obj optfile.obj osclose.obj osopen.obj ospipe.obj
+osread.obj oswait.obj oswrite.obj prompt.obj rdenv.obj sioarg.obj st2d.obj
+stubs.obj swcinp.obj swcoup.obj sysax.obj sysbs.obj sysbx.obj syscm.obj
+syscr.obj sysdc.obj 
+sysdt.obj sysea.obj sysef.obj sysej.obj sysem.obj sysen.obj sysep.obj
+sysex.obj sysfc.obj sysgc.obj syshs.obj sysid.obj sysif.obj sysil.obj
+sysin.obj sysio.obj sysld.obj sysmm.obj sysmx.obj sysou.obj syspl.obj
+syspp.obj sysrw.obj sysst.obj sysstdio.obj systm.obj systty.obj
+sysul.obj sysxi.obj testty.obj trypath.obj wrtaout.obj errors.obj
+host88.obj scops.obj kbops.obj vmode.obj v37.obj
+
